@@ -18,7 +18,7 @@ def newton(F, dF, x0, delta=1e-04, ep=1e-04, maxIter=100):
 
 def plot_simple_function():
     """
-    Calculate x_0 for f: R -> R with newtons method
+    Calculate roots for f: R -> R with newtons method and plot it.
     """
 
     def F(x):
@@ -62,9 +62,9 @@ def plot_simple_function():
     plt.show()
 
 
-def plot_second_function():
+def calculate_second_function():
     """
-    f: R**2 -> R**2
+    Calculate root of f: R**2 -> R**2 and print it.
     """
 
     def F(x):
@@ -74,21 +74,21 @@ def plot_second_function():
 
     def dF(x):
         x = np.array(x)
-        y = np.array((2 * x[0] + 2 * x[1] - 6 * x[0], 3 / 4 * np.exp(-x[0]) - x[1]))
+        y = np.array((2*x[0] - 6, 2*x[1], -3/4*np.exp(-x[0]), -1)).reshape(2, 2)
         return y
 
-    x0s = (0.1, 2, -2)
+    x0 = np.array((2/25, 7/10))
     delta = 1e-10
     ep = 1e-10
     maxIter = 50
 
-    x0_values = np.array([newton(F, dF, x0, delta, ep, maxIter) for x0 in x0s])
-    y0_values = np.zeros(x0_values.shape[0])
+    x0_value = newton(F, dF, x0, delta, ep, maxIter)
+    print(f"(Task 3) Root of F: R**2 -> R**2 = {x0_value}")
 
 
 def main():
-    plot_simple_function()
-    # plot_second_function()
+    # plot_simple_function()
+    calculate_second_function()
 
 
 if __name__ == "__main__":
