@@ -16,6 +16,13 @@ def newton(F, dF, x0, delta=1e-04, ep=1e-04, maxIter=100):
     return x_k
 
 
+def colorize_points(points_n, color_points):
+    points = np.vstack([points_n for _ in range(len(color_points))]).T
+    dif = points - color_points
+    closest_index = np.argmin(dif * dif, axis=1)
+    return closest_index
+
+
 def plot_simple_function():
     """
     Calculate roots for f: R -> R with newtons method and plot it.
@@ -74,10 +81,10 @@ def calculate_second_function():
 
     def dF(x):
         x = np.array(x)
-        y = np.array((2*x[0] - 6, 2*x[1], -3/4*np.exp(-x[0]), -1)).reshape(2, 2)
+        y = np.array((2 * x[0] - 6, 2 * x[1], -3 / 4 * np.exp(-x[0]), -1)).reshape(2, 2)
         return y
 
-    x0 = np.array((2/25, 7/10))
+    x0 = np.array((2 / 25, 7 / 10))
     delta = 1e-10
     ep = 1e-10
     maxIter = 50
@@ -86,9 +93,48 @@ def calculate_second_function():
     print(f"(Task 3) Root of F: R**2 -> R**2 = {x0_value}")
 
 
+def plot_simple_fractal():
+    def F(z):
+        z = np.array(z)
+        y = np.array(z**3 - 1).reshape(1, 1)
+        return y
+
+    def dF(z):
+        z = np.array(z)
+        y = np.array(3 * z**2).reshape(1, 1)
+        return y
+
+    steps = 128
+    x0s = np.linspace(-1, 1, steps)
+    y0s = np.linspace(-1, 1, steps)
+    grid = np.array([[x + 1j * y for x in x0s] for y in y0s]).flatten()
+
+    delta = 1e-05
+    ep = 1e-05
+    maxIter = 15
+    result = np.array([newton(F, dF, z0, delta, ep, maxIter) for z0 in grid]).reshape(-3)
+
+    print(result.shape)
+
+    real_x0s = np.array((-1, (-1 + 1j * np.sqrt(3)) / 2, (-1 - 1j * np.sqrt(3)) / 2))
+    colored_x0s = colorize_points(result, real_x0s)
+
+    plt.imshow(colored_x0s.reshape(steps, steps), cmap='hsv', extent=(-1, 1, -1, 1))
+
+    # Plotting
+    # plt.figure(figsize=(14, 6))
+    # plt.scatter(grid, colored_x0s, linewidth=10)
+    #
+    # plt.title("x -> x**3 - 2*x")
+    # plt.tight_layout()
+    # plt.grid()
+    plt.show()
+
+
 def main():
     # plot_simple_function()
-    calculate_second_function()
+    # calculate_second_function()
+    plot_simple_fractal()
 
 
 if __name__ == "__main__":
