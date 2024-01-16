@@ -16,10 +16,35 @@ def newton(F, dF, x0, delta=1e-04, ep=1e-04, maxIter=100):
     return x_k
 
 
+def newton_unity_root(z0s, d, delta=1e-04, ep=1e-04, maxIter=15):
+    """
+    Same as `newton`, but optimized for `z**d = 1` functions.
+
+    Calculating the fractals would work with `newton` without having to
+    make any adjustments to the function, but it takes forever as we
+    loop over every single point.
+
+    Here we have vectorized this process and only loop over each iteration.
+    """
+    z_k = z0s
+
+    for i in range(maxIter):
+        a = (d - 1) * z_k
+        b = 1 / np.power(z_k, d - 1)
+        z = (a + b) / d
+        if np.linalg.norm(np.power(z_k, d) - 1) < ep:
+            break
+        if np.linalg.norm(z - z_k) < delta:
+            break
+        z_k = z
+
+    return z_k
+
+
 def colorize_points(points_n, color_points):
     points = np.vstack([points_n for _ in range(len(color_points))]).T
-    dif = points - color_points
-    closest_index = np.argmin(dif * dif, axis=1)
+    dif = np.abs(points - color_points)
+    closest_index = np.argmin(dif, axis=1)
     return closest_index
 
 
@@ -94,40 +119,28 @@ def calculate_second_function():
 
 
 def plot_simple_fractal():
-    def F(z):
-        z = np.array(z)
-        y = np.array(z**3 - 1).reshape(1, 1)
-        return y
+    """
+    Colorize the closest root to a tight point grid to visualize fractals.
 
-    def dF(z):
-        z = np.array(z)
-        y = np.array(3 * z**2).reshape(1, 1)
-        return y
-
-    steps = 128
+    Uses `z**3 = 1` function.
+    """
+    steps = 512
     x0s = np.linspace(-1, 1, steps)
     y0s = np.linspace(-1, 1, steps)
-    grid = np.array([[x + 1j * y for x in x0s] for y in y0s]).flatten()
+    xx, yy = np.meshgrid(x0s, y0s)
+    grid = np.ravel(xx + 1j * yy)
 
     delta = 1e-05
     ep = 1e-05
     maxIter = 15
-    result = np.array([newton(F, dF, z0, delta, ep, maxIter) for z0 in grid]).reshape(-3)
+    result = newton_unity_root(grid, 3, delta, ep, maxIter)
 
-    print(result.shape)
-
-    real_x0s = np.array((-1, (-1 + 1j * np.sqrt(3)) / 2, (-1 - 1j * np.sqrt(3)) / 2))
+    # real_x0s = np.array([np.exp(2j * np.pi * k / 3) for k in range(3)])
+    real_x0s = np.array((1, -0.5 + 0.5j * np.sqrt(3), -0.5 - 0.5j * np.sqrt(3)))
     colored_x0s = colorize_points(result, real_x0s)
 
-    plt.imshow(colored_x0s.reshape(steps, steps), cmap='hsv', extent=(-1, 1, -1, 1))
-
-    # Plotting
-    # plt.figure(figsize=(14, 6))
-    # plt.scatter(grid, colored_x0s, linewidth=10)
-    #
-    # plt.title("x -> x**3 - 2*x")
-    # plt.tight_layout()
-    # plt.grid()
+    plt.imshow(colored_x0s.reshape(steps, steps))
+    plt.title("z**3 = 1")
     plt.show()
 
 
