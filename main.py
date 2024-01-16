@@ -140,14 +140,49 @@ def plot_simple_fractal():
     colored_x0s = colorize_points(result, real_x0s)
 
     plt.imshow(colored_x0s.reshape(steps, steps))
-    plt.title("z**3 = 1")
+    plt.title("Colored lattice points based on nearest location to root of z**3 = 1")
+    plt.show()
+
+
+def plot_trippy_fractal():
+    """
+    Colorize the closest root to a tight point grid to visualize fractals.
+
+    Uses `z**5 = 1` function.
+    """
+
+    # def F(z):
+    #     z = np.array(z)
+    #     y = np.array(np.power(z, 5) - 1).reshape(1, 1)
+    #     return y
+    #
+    # def dF(z):
+    #     z = np.array(z)
+    #     y = np.array(5 * np.power(z, 4)).reshape(1, 1)
+    #     return y
+    #
+    steps = 512
+    x0s = np.linspace(-1, 1, steps)
+    y0s = np.linspace(-1, 1, steps)
+    xx, yy = np.meshgrid(x0s, y0s)
+    grid = np.ravel(xx + 1j * yy)
+
+    delta = 1e-14
+    ep = 1e-14
+    maxIter = 15
+    result = newton_unity_root(grid, 5, delta, ep, maxIter)
+    # result = np.array([newton(F, dF, x0, delta, ep, maxIter) for x0 in grid])
+
+    plt.imshow(np.angle(result.reshape(steps, steps)), cmap="hsv")
+    plt.title("z**5 = 1")
     plt.show()
 
 
 def main():
     # plot_simple_function()
     # calculate_second_function()
-    plot_simple_fractal()
+    # plot_simple_fractal()
+    plot_trippy_fractal()
 
 
 if __name__ == "__main__":
