@@ -1,6 +1,12 @@
+"""
+Reference videos on this topic to better understand what is happening:
+
+https://www.youtube.com/watch?v=-RdOwhmqP5s
+https://www.youtube.com/watch?v=LqbZpur38nw
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import axes3d
 
 
 def newton(F, dF, x0, delta=1e-04, ep=1e-04, maxIter=100):
@@ -39,6 +45,19 @@ def newton_unity_root(z0s, d, delta=1e-04, ep=1e-04, maxIter=15):
             break
         z_k = z
 
+    return z_k
+
+
+def mandelbrot_sequence(c, maxIter=256):
+    z_k = c
+    m = np.zeros(z_k.shape)
+
+    for i in range(maxIter):
+        z_k = np.power(z_k, 2) + c
+        m += np.array(z_k * z_k <= 4, dtype=float)
+
+    m /= maxIter
+    return m
     return z_k
 
 
@@ -151,17 +170,6 @@ def plot_trippy_fractal():
 
     Uses `z**5 = 1` function.
     """
-
-    # def F(z):
-    #     z = np.array(z)
-    #     y = np.array(np.power(z, 5) - 1).reshape(1, 1)
-    #     return y
-    #
-    # def dF(z):
-    #     z = np.array(z)
-    #     y = np.array(5 * np.power(z, 4)).reshape(1, 1)
-    #     return y
-    #
     steps = 512
     x0s = np.linspace(-1, 1, steps)
     y0s = np.linspace(-1, 1, steps)
@@ -172,7 +180,6 @@ def plot_trippy_fractal():
     ep = 1e-14
     maxIter = 15
     result = newton_unity_root(grid, 5, delta, ep, maxIter)
-    # result = np.array([newton(F, dF, x0, delta, ep, maxIter) for x0 in grid])
 
     plt.imshow(np.angle(result.reshape(steps, steps)), cmap="hsv")
     plt.title("z**5 = 1")
@@ -212,7 +219,15 @@ def plot_minima_function():
     fig = plt.figure()
     ax = fig.add_subplot(projection="3d")
     ax.plot_wireframe(X1, X2, Z, rstride=1, cstride=1, label="F: R**2 -> R")
-    ax.scatter(-1, 1, F(x0_value[0], x0_value[1]), color="red", marker="o", s=200, label="Minimum")
+    ax.scatter(
+        -1,
+        1,
+        F(x0_value[0], x0_value[1]),
+        color="red",
+        marker="o",
+        s=200,
+        label="Minimum",
+    )
 
     ax.set_xlabel("X1")
     ax.set_ylabel("X2")
@@ -223,12 +238,28 @@ def plot_minima_function():
     plt.show()
 
 
+def plot_mandelbrot():
+    steps = 1024
+    x0s = np.linspace(-1.5, 0.5, steps)
+    y0s = np.linspace(-1, 1, steps)
+    xx, yy = np.meshgrid(x0s, y0s)
+    grid = np.ravel(xx + 1j * yy)
+
+    maxIter = 256
+    result = mandelbrot_sequence(grid, maxIter)
+
+    plt.axis("off")
+    plt.imshow(result.reshape(steps, steps), cmap="inferno")
+    plt.show()
+
+
 def main():
     # plot_simple_function()
     # calculate_second_function()
     # plot_simple_fractal()
     # plot_trippy_fractal()
-    plot_minima_function()
+    # plot_minima_function()
+    plot_mandelbrot()
 
 
 if __name__ == "__main__":
