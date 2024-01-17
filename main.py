@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import axes3d
 
 
 def newton(F, dF, x0, delta=1e-04, ep=1e-04, maxIter=100):
@@ -178,11 +179,56 @@ def plot_trippy_fractal():
     plt.show()
 
 
+def plot_minima_function():
+    def F(x1, x2):
+        return (x1 + 1) ** 4 + (x2 - 1) ** 4
+
+    # Jacobi Matrix of F
+    def J(x):
+        x = np.array(x)
+        y = np.array([4 * np.power(x[0] + 1, 3), 4 * np.power(x[1] - 1, 3)])
+        return y
+
+    # Hessian Matrix of F
+    def H(x):
+        x = np.array(x)
+        y = np.array(
+            [12 * np.power(x[0] + 1, 2), 0, 0, 12 * np.power(x[1] - 1, 2)]
+        ).reshape(2, 2)
+        return y
+
+    x0 = np.array((-1.1, 1.1))
+    delta = 1e-15
+    ep = 1e-15
+    maxIter = 150
+
+    x0_value = newton(J, H, x0, delta, ep, maxIter)
+
+    x1 = np.linspace(-5, 3, 10)
+    x2 = np.linspace(-3, 5, 10)
+    X1, X2 = np.meshgrid(x1, x2)
+    Z = F(X1, X2)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(projection="3d")
+    ax.plot_wireframe(X1, X2, Z, rstride=1, cstride=1, label="F: R**2 -> R")
+    ax.scatter(-1, 1, F(x0_value[0], x0_value[1]), color="red", marker="o", s=200, label="Minimum")
+
+    ax.set_xlabel("X1")
+    ax.set_ylabel("X2")
+    ax.set_zlabel("F")
+    ax.legend()
+
+    plt.title(f"Minimum at {x0_value}")
+    plt.show()
+
+
 def main():
     # plot_simple_function()
     # calculate_second_function()
     # plot_simple_fractal()
-    plot_trippy_fractal()
+    # plot_trippy_fractal()
+    plot_minima_function()
 
 
 if __name__ == "__main__":
