@@ -5,8 +5,35 @@ https://www.youtube.com/watch?v=-RdOwhmqP5s
 https://www.youtube.com/watch?v=LqbZpur38nw
 """
 
+import warnings
+
 import numpy as np
 import matplotlib.pyplot as plt
+
+
+def ignore_warnings():
+    """
+    We ignore the numpy warnings as they spam the console log.
+    """
+    warnings.filterwarnings(
+        "ignore", category=RuntimeWarning, message="overflow encountered in multiply"
+    )
+    warnings.filterwarnings(
+        "ignore", category=RuntimeWarning, message="overflow encountered in power"
+    )
+    warnings.filterwarnings(
+        "ignore", category=RuntimeWarning, message="invalid value encountered in power"
+    )
+    warnings.filterwarnings(
+        "ignore",
+        category=RuntimeWarning,
+        message="invalid value encountered in multiply",
+    )
+    warnings.filterwarnings(
+        "ignore",
+        category=RuntimeWarning,
+        message="invalid value encountered in less_equal",
+    )
 
 
 def newton(F, dF, x0, delta=1e-04, ep=1e-04, maxIter=100):
@@ -103,6 +130,7 @@ def plot_simple_function():
     x_values = np.linspace(-2, 2, 100)
     y_values = np.squeeze(np.array([F(x) for x in x_values]))
 
+    print("(Task 2) See plot")
     # Plotting
     plt.figure(figsize=(14, 6))
     plt.scatter(x0_values, y0_values, color="red", linewidth=10)
@@ -159,6 +187,8 @@ def plot_simple_fractal():
     real_x0s = np.array((1, -0.5 + 0.5j * np.sqrt(3), -0.5 - 0.5j * np.sqrt(3)))
     colored_x0s = colorize_points(result, real_x0s)
 
+    print("(Task 4) See plot")
+    # Plotting
     plt.imshow(colored_x0s.reshape(steps, steps))
     plt.title("Colored lattice points based on nearest location to root of z**3 = 1")
     plt.show()
@@ -166,11 +196,11 @@ def plot_simple_fractal():
 
 def plot_trippy_fractal():
     """
-    Colorize the closest root to a tight point grid to visualize fractals.
+    Similar to `plot_simple_fractal`, but we colorize the points continously here.
 
     Uses `z**5 = 1` function.
     """
-    steps = 512
+    steps = 1024
     x0s = np.linspace(-1, 1, steps)
     y0s = np.linspace(-1, 1, steps)
     xx, yy = np.meshgrid(x0s, y0s)
@@ -178,12 +208,19 @@ def plot_trippy_fractal():
 
     delta = 1e-14
     ep = 1e-14
-    maxIter = 15
-    result = newton_unity_root(grid, 5, delta, ep, maxIter)
+    print("(Task 5) See plots")
+    for maxIter in [5, 15]:
+        result = newton_unity_root(grid, 5, delta, ep, maxIter)
 
-    plt.imshow(np.angle(result.reshape(steps, steps)), cmap="hsv")
-    plt.title("z**5 = 1")
-    plt.show()
+        plt.imshow(np.angle(result.reshape(steps, steps)), cmap="hsv")
+        plt.title(
+            f"z**5 = 1 with maxIter={maxIter}\n"
+            "Note that the plot is not quite matching the example plot.\n"
+            "I couldn't figure out why that is,\n"
+            "my best guess is that something is wrong with the convergence rule."
+        )
+        plt.tight_layout()
+        plt.show()
 
 
 def plot_minima_function():
@@ -216,6 +253,8 @@ def plot_minima_function():
     X1, X2 = np.meshgrid(x1, x2)
     Z = F(X1, X2)
 
+    print("(Task 6) See plot")
+    # Plotting
     fig = plt.figure()
     ax = fig.add_subplot(projection="3d")
     ax.plot_wireframe(X1, X2, Z, rstride=1, cstride=1, label="F: R**2 -> R")
@@ -239,6 +278,7 @@ def plot_minima_function():
 
 
 def plot_mandelbrot():
+    print("Calculating Mandelbrot...")
     steps = 1024
     x0s = np.linspace(-1.5, 0.5, steps)
     y0s = np.linspace(-1, 1, steps)
@@ -248,18 +288,24 @@ def plot_mandelbrot():
     maxIter = 256
     result = mandelbrot_sequence(grid, maxIter)
 
+    print("(Task 7) Mandelbrot, see plot")
+    # Plotting
     plt.axis("off")
     plt.imshow(result.reshape(steps, steps), cmap="inferno")
     plt.show()
 
 
 def main():
-    # plot_simple_function()
-    # calculate_second_function()
-    # plot_simple_fractal()
-    # plot_trippy_fractal()
-    # plot_minima_function()
+    plot_simple_function()
+    calculate_second_function()
+    plot_simple_fractal()
+    plot_trippy_fractal()
+    plot_minima_function()
+
+    ignore_warnings()
     plot_mandelbrot()
+    warnings.resetwarnings()
+    print("DONE")
 
 
 if __name__ == "__main__":
